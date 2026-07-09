@@ -46,6 +46,16 @@ fi
 chmod 600 "$DEPLOY_HOME/.ssh/authorized_keys"
 chown "$DEPLOY_USER:$DEPLOY_USER" "$DEPLOY_HOME/.ssh/authorized_keys"
 
+# sudo sin password para $DEPLOY_USER: no añade superficie de ataque real,
+# porque este usuario ya está en el grupo docker, que de por sí equivale a
+# root (se puede montar el filesystem del host desde un contenedor
+# privilegiado). El límite de seguridad real es la llave privada SSH, no
+# sudo. Ver docs/security.md. Necesario además para que scripts/backup.sh y
+# scripts/healthcheck.sh corran de forma no interactiva por SSH.
+echo "$DEPLOY_USER ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/90-"$DEPLOY_USER"-nopasswd
+chmod 440 /etc/sudoers.d/90-"$DEPLOY_USER"-nopasswd
+visudo -cf /etc/sudoers.d/90-"$DEPLOY_USER"-nopasswd
+
 echo "==> Instalando fail2ban, ufw, unattended-upgrades"
 apt-get install -y fail2ban ufw unattended-upgrades curl ca-certificates gnupg
 

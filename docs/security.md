@@ -8,7 +8,7 @@ El aprovisionamiento inicial está dividido en dos scripts independientes a prop
 
 Se ejecuta una única vez, contra un VPS Ubuntu 24.04 recién creado en Hetzner, como `root` (es la única fase del proyecto donde el uso de terminal es obligatorio). Deja el servidor en este estado:
 
-- **Usuario no-root para todo lo demás.** Se crea el usuario definido en `DEPLOY_USER` (por defecto `deploy`), con `sudo`, y se le agrega la llave pública SSH definida en `DEPLOY_SSH_PUBLIC_KEY`.
+- **Usuario no-root para todo lo demás.** Se crea el usuario definido en `DEPLOY_USER` (por defecto `deploy`), con `sudo` sin password (`/etc/sudoers.d/90-deploy-nopasswd`) y se le agrega la llave pública SSH definida en `DEPLOY_SSH_PUBLIC_KEY`. El sudo sin password es necesario para que `scripts/backup.sh` y `scripts/healthcheck.sh` corran de forma no interactiva por SSH, y no añade superficie de ataque real: este usuario ya pertenece al grupo `docker`, que de por sí equivale a acceso root (se puede montar el filesystem del host desde un contenedor privilegiado). El límite de seguridad real de este servidor es la llave privada SSH de `deploy`, no `sudo`.
 - **Firewall (`ufw`).** Solo se permiten los puertos 22 (SSH), 80 (HTTP) y 443 (HTTPS). Todo lo demás, denegado por defecto.
 - **`fail2ban`.** Bloquea IPs con intentos repetidos de login SSH fallido.
 - **`unattended-upgrades`.** Actualizaciones de seguridad del sistema operativo se aplican automáticamente.
