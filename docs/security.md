@@ -1,20 +1,35 @@
 # Seguridad
 
-## Qué hace `scripts/bootstrap.sh`
+## Provisión en dos pasos deliberados
+
+El aprovisionamiento inicial está dividido en dos scripts independientes a propósito, para que deshabilitar el acceso root/password sea una acción verificada, no un paso ciego dentro de un script más largo.
+
+### Paso 1 — `scripts/bootstrap.sh`
 
 Se ejecuta una única vez, contra un VPS Ubuntu 24.04 recién creado en Hetzner, como `root` (es la única fase del proyecto donde el uso de terminal es obligatorio). Deja el servidor en este estado:
 
 - **Usuario no-root para todo lo demás.** Se crea el usuario definido en `DEPLOY_USER` (por defecto `deploy`), con `sudo`, y se le agrega la llave pública SSH definida en `DEPLOY_SSH_PUBLIC_KEY`.
-- **SSH endurecido.** Login por contraseña deshabilitado, login de `root` por SSH deshabilitado. Solo autenticación por llave.
 - **Firewall (`ufw`).** Solo se permiten los puertos 22 (SSH), 80 (HTTP) y 443 (HTTPS). Todo lo demás, denegado por defecto.
 - **`fail2ban`.** Bloquea IPs con intentos repetidos de login SSH fallido.
 - **`unattended-upgrades`.** Actualizaciones de seguridad del sistema operativo se aplican automáticamente.
 - **Docker Engine + plugin de compose**, instalados desde el repositorio oficial de Docker.
 - **Coolify**, instalado con el script oficial (requiere ejecutarse como root en este paso específico del bootstrap; después de instalado, su administración diaria es 100% vía navegador).
 
-## Antes de cerrar la sesión de root
+Este script **no toca la configuración de SSH** — root y password login siguen habilitados al terminar.
 
-`bootstrap.sh` deshabilita el login por contraseña y el acceso SSH de `root` **solo si ya se confirmó** que el login con el usuario `deploy` y su llave funciona. El script imprime un recordatorio explícito de probar la conexión con el nuevo usuario en una terminal aparte antes de cerrar la sesión original — no hacerlo puede dejar el servidor inaccesible.
+### Verificación manual obligatoria
+
+Antes de continuar, desde una terminal nueva, confirmar que el login con el usuario `deploy` y su llave privada funciona:
+
+```bash
+ssh -i <tu-llave-privada> deploy@<ip-del-vps>
+```
+
+Si falla, **no continuar** — revisar la llave pública instalada antes de perder acceso al servidor.
+
+### Paso 2 — `scripts/harden-ssh.sh`
+
+Solo después de confirmar el paso anterior, se corre este script (root), que deshabilita `PasswordAuthentication` y `PermitRootLogin`, y reinicia `sshd`. A partir de aquí, el único acceso al servidor es por SSH con llave, como `deploy`.
 
 ## Manejo de secretos
 

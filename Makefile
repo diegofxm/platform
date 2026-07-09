@@ -5,12 +5,19 @@ SSH      = ssh -p $(VPS_SSH_PORT) $(DEPLOY_USER)@$(VPS_HOST)
 SSH_ROOT = ssh -p $(VPS_SSH_PORT) root@$(VPS_HOST)
 SCP      = scp -P $(VPS_SSH_PORT)
 
-.PHONY: bootstrap backup restore healthcheck
+.PHONY: bootstrap harden-ssh backup restore healthcheck
 
 ## Aprovisiona un VPS nuevo (correr una sola vez, requiere acceso root).
+## NO deshabilita password/root login todavía — ver target harden-ssh.
 bootstrap:
 	$(SCP) scripts/bootstrap.sh root@$(VPS_HOST):/root/bootstrap.sh
 	$(SSH_ROOT) "DEPLOY_USER='$(DEPLOY_USER)' DEPLOY_SSH_PUBLIC_KEY='$(DEPLOY_SSH_PUBLIC_KEY)' TIMEZONE='$(TIMEZONE)' bash /root/bootstrap.sh"
+
+## Deshabilita password auth y login root. Correr SOLO después de verificar
+## manualmente que "ssh $(DEPLOY_USER)@$(VPS_HOST)" funciona.
+harden-ssh:
+	$(SCP) scripts/harden-ssh.sh root@$(VPS_HOST):/root/harden-ssh.sh
+	$(SSH_ROOT) "bash /root/harden-ssh.sh"
 
 ## Respalda /data/coolify (y lo definido en BACKUP_PATHS) hacia Cloudflare R2.
 backup:
