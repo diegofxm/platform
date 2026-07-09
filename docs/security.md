@@ -29,7 +29,9 @@ Si falla, **no continuar** — revisar la llave pública instalada antes de perd
 
 ### Paso 2 — `scripts/harden-ssh.sh`
 
-Solo después de confirmar el paso anterior, se corre este script (root), que deshabilita `PasswordAuthentication` y `PermitRootLogin`, y reinicia `sshd`. A partir de aquí, el único acceso al servidor es por SSH con llave, como `deploy`.
+Solo después de confirmar el paso anterior, se corre este script (root), que deshabilita `PasswordAuthentication` y pone `PermitRootLogin prohibit-password`, y reinicia `sshd`. A partir de aquí, ningún usuario puede entrar por password — solo por llave.
+
+**Nota importante:** el login de `root` **no se deshabilita por completo**, solo se restringe a llave (`prohibit-password`, no `no`). Esto es a propósito: Coolify se autogestiona conectándose por SSH como `root` a `localhost` con una llave dedicada que agrega a `/root/.ssh/authorized_keys` durante su instalación (visible como la entrada etiquetada `coolify`). Si `PermitRootLogin` se pone en `no`, esa auto-gestión se rompe y el servidor "localhost" aparece como "Not reachable" dentro del panel de Coolify — este fue justamente el primer error real encontrado al provisionar el VPS de producción, corregido en este mismo repo.
 
 ## Manejo de secretos
 
@@ -44,7 +46,7 @@ Solo después de confirmar el paso anterior, se corre este script (root), que de
 
 ## Checklist de seguridad (repasar en la Fase 6)
 
-- [ ] SSH solo por llave, root deshabilitado.
+- [x] SSH solo por llave; root restringido a llave (`prohibit-password`, necesario para que Coolify se autogestione).
 - [ ] `ufw` activo con solo 22/80/443 abiertos.
 - [ ] `fail2ban` activo y probado.
 - [ ] Actualizaciones de seguridad automáticas confirmadas.
