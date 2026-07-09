@@ -33,7 +33,7 @@ platform/
 ## Estado del proyecto (roadmap)
 
 - [x] **Fase 1** — Estructura del repo, documentación base, scripts de bootstrap/backup/restore.
-- [ ] **Fase 2** — Provisionar el VPS real en Hetzner y correr `bootstrap.sh` (instala Coolify).
+- [x] **Fase 2** — VPS provisionado en Hetzner (167.233.192.38, Ubuntu 24.04). `bootstrap.sh` + `harden-ssh.sh` corridos: usuario `deploy` con sudo sin password, firewall, fail2ban, actualizaciones automáticas, Docker, Coolify 4.1.2 instalado y sano. Login root por SSH deshabilitado. Panel de Coolify accesible en `http://167.233.192.38:8000` (pendiente ponerle dominio/HTTPS en Fase 3).
 - [ ] **Fase 3** — Configurar DNS (Cloudflare) y activar backups automáticos hacia Cloudflare R2.
 - [ ] **Fase 4** — Monitoreo con alertas (Uptime Kuma).
 - [ ] **Fase 5** — Desplegar la primera aplicación real (`cofacture-api`) vía Coolify.
