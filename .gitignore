@@ -1,0 +1,14 @@
+# Secretos y configuración local — nunca versionar
+.env
+*.pem
+*.key
+id_ed25519*
+id_rsa*
+
+# Backups/restauraciones locales de prueba
+/backups/
+/restore-tmp/
+
+# Sistema
+.DS_Store
+Thumbs.db
