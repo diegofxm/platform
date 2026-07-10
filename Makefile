@@ -5,7 +5,7 @@ SSH      = ssh -p $(VPS_SSH_PORT) $(DEPLOY_USER)@$(VPS_HOST)
 SSH_ROOT = ssh -p $(VPS_SSH_PORT) root@$(VPS_HOST)
 SCP      = scp -P $(VPS_SSH_PORT)
 
-.PHONY: bootstrap harden-ssh backup restore healthcheck
+.PHONY: bootstrap harden-ssh backup restore healthcheck install-backup-cron
 
 ## Aprovisiona un VPS nuevo (correr una sola vez, requiere acceso root).
 ## NO deshabilita password/root login todavía — ver target harden-ssh.
@@ -33,3 +33,8 @@ restore:
 healthcheck:
 	$(SCP) scripts/healthcheck.sh $(DEPLOY_USER)@$(VPS_HOST):/tmp/healthcheck.sh
 	$(SSH) "COOLIFY_URL='$(COOLIFY_URL)' bash /tmp/healthcheck.sh"
+
+## Instala backup.sh de forma permanente en el VPS y programa el cron diario.
+install-backup-cron:
+	$(SCP) scripts/backup.sh scripts/install-backup-cron.sh root@$(VPS_HOST):/root/
+	$(SSH_ROOT) "RESTIC_REPOSITORY='$(RESTIC_REPOSITORY)' RESTIC_PASSWORD='$(RESTIC_PASSWORD)' AWS_ACCESS_KEY_ID='$(AWS_ACCESS_KEY_ID)' AWS_SECRET_ACCESS_KEY='$(AWS_SECRET_ACCESS_KEY)' BACKUP_PATHS='$(BACKUP_PATHS)' BACKUP_KEEP_DAILY='$(BACKUP_KEEP_DAILY)' BACKUP_KEEP_WEEKLY='$(BACKUP_KEEP_WEEKLY)' BACKUP_KEEP_MONTHLY='$(BACKUP_KEEP_MONTHLY)' bash /root/install-backup-cron.sh"

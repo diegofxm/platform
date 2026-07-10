@@ -56,8 +56,8 @@ echo "$DEPLOY_USER ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/90-"$DEPLOY_USER"-nop
 chmod 440 /etc/sudoers.d/90-"$DEPLOY_USER"-nopasswd
 visudo -cf /etc/sudoers.d/90-"$DEPLOY_USER"-nopasswd
 
-echo "==> Instalando fail2ban, ufw, unattended-upgrades"
-apt-get install -y fail2ban ufw unattended-upgrades curl ca-certificates gnupg
+echo "==> Instalando fail2ban, ufw, unattended-upgrades, restic"
+apt-get install -y fail2ban ufw unattended-upgrades restic curl ca-certificates gnupg
 
 echo "==> Habilitando actualizaciones de seguridad automáticas"
 dpkg-reconfigure -f noninteractive unattended-upgrades
