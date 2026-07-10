@@ -70,6 +70,19 @@ ufw allow 80/tcp
 ufw allow 443/tcp
 ufw --force enable
 
+echo "==> Configurando fail2ban (ignorando redes internas de Docker)"
+# Coolify se autogestiona conectándose por SSH como root desde sus propios
+# contenedores hacia el host (ver docs/security.md). Sin este ignoreip, un
+# contenedor interno puede fallar el login unas cuantas veces (por ejemplo
+# durante su propio arranque) y terminar auto-baneado por fail2ban, dejando
+# a Coolify sin poder gestionar el servidor. 10.0.0.0/8 cubre docker0 y
+# todas las redes que Coolify crea por cada stack desplegado; no es
+# alcanzable desde internet, solo expone lo que ufw ya permite (22/80/443).
+cat >/etc/fail2ban/jail.local <<'EOF'
+[DEFAULT]
+ignoreip = 127.0.0.1/8 ::1 10.0.0.0/8
+EOF
+
 echo "==> Habilitando fail2ban"
 systemctl enable --now fail2ban
 
