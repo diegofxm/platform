@@ -33,8 +33,8 @@ platform/
 ## Estado del proyecto (roadmap)
 
 - [x] **Fase 1** — Estructura del repo, documentación base, scripts de bootstrap/backup/restore.
-- [x] **Fase 2** — VPS provisionado en Hetzner (167.233.192.38, Ubuntu 24.04). `bootstrap.sh` + `harden-ssh.sh` corridos: usuario `deploy` con sudo sin password, firewall, fail2ban (con `ignoreip` para las redes internas de Docker), actualizaciones automáticas, Docker, Coolify 4.1.2 instalado. Servidor `localhost` validado y sano dentro de Coolify (proxy corriendo, Sentinel sincronizado). Login root por SSH restringido a llave (`prohibit-password`). Panel accesible en `http://167.233.192.38:8000` (pendiente ponerle dominio/HTTPS en Fase 3).
-- [ ] **Fase 3** — Configurar DNS (Cloudflare) y activar backups automáticos hacia Cloudflare R2.
+- [x] **Fase 2** — VPS provisionado en Hetzner (167.233.192.38, Ubuntu 24.04). `bootstrap.sh` + `harden-ssh.sh` corridos: usuario `deploy` con sudo sin password, firewall, fail2ban (con `ignoreip` para las redes internas de Docker), actualizaciones automáticas, Docker, Coolify 4.1.2 instalado. Servidor `localhost` validado y sano dentro de Coolify (proxy corriendo, Sentinel sincronizado). Login root por SSH restringido a llave (`prohibit-password`).
+- [~] **Fase 3** — DNS del panel: hecho — `coolify.cofacture.co` (registro `A` en Namecheap, sin mover a Cloudflare) con HTTPS válido (Let's Encrypt, auto-renovable). Pendiente: conectar GitHub como Source y activar backups automáticos hacia Cloudflare R2.
 - [ ] **Fase 4** — Monitoreo con alertas (Uptime Kuma).
 - [ ] **Fase 5** — Desplegar la primera aplicación real (`cofacture-api`) vía Coolify.
 - [ ] **Fase 6** — Repaso de seguridad end-to-end y prueba real de restauración desde backup.

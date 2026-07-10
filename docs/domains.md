@@ -6,13 +6,15 @@ Existe un único dominio propio, `cofacture.co`, registrado para el producto Cof
 
 ## Cómo se organiza mientras tanto
 
-Se usan subdominios de `cofacture.co` apuntando (registro DNS tipo `A`) a la IP pública del VPS:
+Se usan subdominios de `cofacture.co` apuntando (registro DNS tipo `A`, gestionado en Namecheap → Advanced DNS) a la IP pública del VPS (`167.233.192.38`):
 
-| Subdominio | Uso |
-|---|---|
-| `app.cofacture.co` / `api.cofacture.co` | Producto Cofacture (aplicación real) |
-| `coolify.cofacture.co` | Panel de administración de Coolify |
-| `status.cofacture.co` | Dashboard de monitoreo (Uptime Kuma, Fase 4) |
+| Subdominio | Uso | Estado |
+|---|---|---|
+| `coolify.cofacture.co` | Panel de administración de Coolify | ✅ Configurado — DNS propagado, HTTPS válido (Let's Encrypt) |
+| `app.cofacture.co` / `api.cofacture.co` | Producto Cofacture (aplicación real) | Pendiente (Fase 5) |
+| `status.cofacture.co` | Dashboard de monitoreo (Uptime Kuma, Fase 4) | Pendiente (Fase 4) |
+
+Para `coolify.cofacture.co`, además del registro DNS, hubo que configurar el dominio dentro del propio Coolify: **Settings → Configuration → General → URL** (`https://coolify.cofacture.co`) y guardar. Coolify reconfigura su proxy interno y emite el certificado automáticamente — no requiere tocar Traefik ni archivos a mano.
 
 Cada nuevo proyecto (NovaERP, Smart Trash, etc.) puede:
 
@@ -25,16 +27,13 @@ Coolify emite certificados SSL automáticamente (Let's Encrypt) por cada dominio
 
 Registrar un dominio propio y neutral para las herramientas *internas* (Coolify, monitoreo) que no dependa del dominio de ningún producto — así, si algún día se vende o migra `cofacture.co`, el panel de administración de la plataforma no se ve afectado. Costo aproximado: 10-15 USD/año. No es necesario para arrancar.
 
-## DNS recomendado: Cloudflare
+## DNS: se quedó en Namecheap
 
-Se recomienda mover la gestión DNS de `cofacture.co` a Cloudflare (plan gratuito):
+Se evaluó mover la gestión DNS de `cofacture.co` a Cloudflare (protección DDoS, cambiar la IP del VPS en un solo lugar si se migra de servidor), pero no es necesario para operar — Namecheap resuelve igual de bien los registros `A` que necesita este setup. Queda como mejora opcional a futuro, no bloqueante. Si se activa en algún momento, revisar el modo del proxy naranja de Cloudflare (afecta cómo Coolify valida los certificados Let's Encrypt: HTTP-01 requiere dejarlo en modo "solo DNS"/nube gris, o cambiar a validación DNS-01).
 
-- Cambiar la IP del VPS en un solo lugar si se migra de servidor (relevante para [`disaster-recovery.md`](disaster-recovery.md)).
-- Protección básica DDoS incluida.
-- Si se activa el proxy naranja de Cloudflare (oculta la IP real del VPS), Coolify debe configurarse para validación de certificados vía DNS-01, o dejar el registro en modo "solo DNS" (nube gris) para simplificar la emisión de certificados Let's Encrypt vía HTTP-01. Se documentará el modo elegido en el momento de configurar Coolify (Fase 2/3).
+## Pasos para agregar un subdominio nuevo (ej. al desplegar una app)
 
-## Pasos cuando el VPS ya tenga IP fija
-
-1. En Cloudflare (o el proveedor DNS actual), crear registros `A` para cada subdominio de la tabla de arriba apuntando a la IP del VPS.
-2. En Coolify, asignar el dominio correspondiente a cada aplicación/servicio.
-3. Verificar que el certificado SSL se emitió correctamente (Coolify lo indica en su UI).
+1. En Namecheap → Domain List → `cofacture.co` → **Manage** → **Advanced DNS** → **Add New Record**: tipo `A`, host = el subdominio (ej. `api`), value = `167.233.192.38`.
+2. Esperar propagación (5-30 min típico).
+3. En Coolify, asignar ese dominio a la aplicación/servicio correspondiente.
+4. Verificar que el certificado SSL se emitió correctamente (Coolify lo indica en su UI).
